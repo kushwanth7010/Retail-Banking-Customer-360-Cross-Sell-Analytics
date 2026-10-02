@@ -1,0 +1,51 @@
+name: Validate Retail Banking Customer 360
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out project
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Compile Python modules
+        run: python -m compileall -q src tests run_pipeline.py app.py
+      - name: Run complete synthetic pipeline
+        run: python run_pipeline.py
+      - name: Run automated tests
+        run: python -m unittest discover -s tests -v
+      - name: Check deterministic KPIs and generated dashboard
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          actual = json.loads(Path("outputs/summary.json").read_text(encoding="utf-8"))
+          expected = json.loads(Path("docs/verified_summary.json").read_text(encoding="utf-8"))
+          assert actual == expected, f"Generated KPIs differ from documented reference: {actual}"
+          for path in ("outputs/customer_360.csv", "outputs/recommendations.csv",
+                       "outputs/retail_banking.sqlite", "dashboard/index.html"):
+              assert Path(path).is_file() and Path(path).stat().st_size > 0, path
+          print("Reference KPIs, database, CSV exports and offline dashboard verified.")
+          PY
+      - name: Upload reproducible project outputs
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-banking-database-csv-and-dashboard
+          path: |
+            outputs/
+            dashboard/index.html
+          if-no-files-found: error
