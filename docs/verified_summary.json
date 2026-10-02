@@ -1,0 +1,17 @@
+{
+  "as_of_date": "2026-09-30",
+  "data_type": "100% synthetic; not production banking records",
+  "customer_count": 1500,
+  "total_successful_transactions": 78370,
+  "avg_snapshot_balance_inr": 112340.78,
+  "contactable_for_review": 985,
+  "inactive_over_60d": 124,
+  "credit_card_holders": 420,
+  "fixed_deposit_holders": 347,
+  "review_only_opportunities": 436,
+  "opportunity_by_product": {
+    "CREDIT_CARD": 221,
+    "FIXED_DEPOSIT": 215
+  },
+  "method": "Explainable rules, one proposed product per customer, approval_status=REVIEW_REQUIRED"
+}

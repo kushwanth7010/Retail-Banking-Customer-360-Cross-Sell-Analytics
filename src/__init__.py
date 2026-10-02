@@ -1,0 +1,1 @@
+"""Synthetic retail banking analytics portfolio project."""
